@@ -25,12 +25,25 @@ func NewGui() {
 }
 
 func layout(g *gocui.Gui) error {
-	maxX, maxY := g.Size()
-	if v, err := g.SetView("hello", maxX/2-7, maxY/2, maxX/2+7, maxY/2+2); err != nil {
+	g.Highlight = true
+	width, height := g.Size()
+	if v, err := g.SetView("header", 1, 1, width-1, 3); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 		fmt.Fprintln(v, "Hello world!")
+	}
+	if v, err := g.SetView("container", 1, 4, width-1, height-10); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		fmt.Fprintln(v, "container")
+	}
+	if v, err := g.SetView("footer", 1, height-9, width-1, height-1); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		fmt.Fprintln(v, "footer")
 	}
 	return nil
 }
