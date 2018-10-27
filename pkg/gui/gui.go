@@ -16,7 +16,21 @@ func NewGui(app *app.App) {
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
 	}
+	if err := g.SetKeybinding("container", 'q', gocui.ModNone, quit); err != nil {
+		log.Panicln(err)
+	}
 	if err := g.SetKeybinding("container", 'j', gocui.ModNone, cursorDown); err != nil {
+		log.Panicln(err)
+	}
+	if err := g.SetKeybinding("container", gocui.KeyArrowDown, gocui.ModNone,
+		cursorDown); err != nil {
+		log.Panicln(err)
+	}
+	if err := g.SetKeybinding("container", 'k', gocui.ModNone, cursorUp); err != nil {
+		log.Panicln(err)
+	}
+	if err := g.SetKeybinding("container", gocui.KeyArrowUp, gocui.ModNone,
+		cursorUp); err != nil {
 		log.Panicln(err)
 	}
 
@@ -60,14 +74,27 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 
 func cursorDown(g *gocui.Gui, v *gocui.View) error {
 	if v != nil {
-		cx, cy := v.Cursor()
 		ox, oy := v.Origin()
+		cx, cy := v.Cursor()
 		max := 2
 		if (oy + cy) < max {
 			if err := v.SetCursor(cx, cy+1); err != nil {
 				if err := v.SetOrigin(ox, oy+1); err != nil {
 					return err
 				}
+			}
+		}
+	}
+	return nil
+}
+
+func cursorUp(g *gocui.Gui, v *gocui.View) error {
+	if v != nil {
+		ox, oy := v.Origin()
+		cx, cy := v.Cursor()
+		if err := v.SetCursor(cx, cy-1); err != nil && oy > 0 {
+			if err := v.SetOrigin(ox, oy-1); err != nil {
+				return err
 			}
 		}
 	}
