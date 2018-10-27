@@ -51,7 +51,12 @@ func layout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		fmt.Fprintln(v, "footer")
+		help := `
+q: quit ?: help spacebar: open PR URL
+return: git checkout "/": search
+j/↓: cursor down k/↑: cursor up
+`
+		fmt.Fprintln(v, help)
 	}
 	if v, err := g.SetView("container", 1, 4, width-1, height-10); err != nil {
 		if err != gocui.ErrUnknownView {
