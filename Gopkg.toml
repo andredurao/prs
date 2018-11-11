@@ -7,6 +7,7 @@ required = [
   "github.com/shurcooL/githubv4",
   "golang.org/x/oauth2",
   "github.com/jroimartin/gocui",
+  "github.com/src-d/go-git",
 ]
 
 [prune]
