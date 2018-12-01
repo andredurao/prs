@@ -1,10 +1,10 @@
 package git
 
 import (
-	"fmt"
 	"gopkg.in/src-d/go-git.v4/config"
 	"io/ioutil"
 	"log"
+	"regexp"
 )
 
 func ReadConfig() map[string]*config.RemoteConfig {
@@ -19,8 +19,15 @@ func ReadConfig() map[string]*config.RemoteConfig {
 		log.Fatal(err)
 	}
 
-	for key, value := range conf.Remotes {
-		fmt.Println("Key:", key, "Value:", value)
-	}
 	return conf.Remotes
+}
+
+func RemoteURL() string {
+	remotes := ReadConfig()
+	return remotes["origin"].URLs[0]
+}
+
+func RepositoryPath() string {
+	re := regexp.MustCompile("git@github.com:(.*).git")
+	return re.FindStringSubmatch(RemoteURL())[1]
 }
