@@ -3,8 +3,10 @@ package gui
 import (
 	"fmt"
 	"github.com/andredurao/prs/pkg/app"
+	"github.com/andredurao/prs/pkg/github"
 	"github.com/jroimartin/gocui"
 	"log"
+	"time"
 )
 
 func NewGui(app *app.App) {
@@ -34,9 +36,33 @@ func NewGui(app *app.App) {
 		log.Panicln(err)
 	}
 
+	messages := make(chan string)
+	go func() {
+		getPullRequests(messages)
+		updateView(g, "container", <-messages)
+	}()
+
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
 		log.Panicln(err)
 	}
+}
+
+func getPullRequests(c chan string) {
+	time.AfterFunc(200*time.Millisecond, func() {
+		c <- fmt.Sprintf("%+v\n", github.PullRequests())
+	})
+}
+
+func updateView(g *gocui.Gui, view string, content string) {
+	v, err := g.View(view)
+	if err != nil {
+		log.Println("Cannot get output view:", err)
+	}
+	v.Clear()
+	fmt.Fprintln(v, content)
+	g.Update(func(g *gocui.Gui) error {
+		return nil
+	})
 }
 
 func layout(g *gocui.Gui) error {
@@ -65,9 +91,7 @@ j/↓: cursor down k/↑: cursor up
 		v.Highlight = true
 		v.SelBgColor = gocui.ColorGreen
 		v.SelFgColor = gocui.ColorBlack | gocui.AttrBold
-		fmt.Fprintln(v, "container")
-		fmt.Fprintln(v, "container")
-		fmt.Fprintln(v, "container")
+		fmt.Fprintln(v, "Loading...")
 	}
 	g.SetCurrentView("container")
 	return nil
