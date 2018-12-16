@@ -17,13 +17,16 @@ type PullRequest struct {
 }
 
 var args string = "is:open is:pr repo:my_repo"
-var query struct {
+
+type TQuery struct {
 	Search struct {
 		Nodes []struct {
 			PullRequest PullRequest `graphql:"... on PullRequest"`
 		}
 	} `graphql:"search(query: $args, type: ISSUE, first: 10)"`
 }
+
+var query TQuery
 
 func githubToken() string {
 	return os.Getenv("GITHUB_AUTH_TOKEN")
