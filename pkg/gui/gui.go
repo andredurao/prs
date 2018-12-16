@@ -3,11 +3,13 @@ package gui
 import (
 	"fmt"
 	"github.com/andredurao/prs/pkg/app"
-	"github.com/andredurao/prs/pkg/github"
+	"github.com/andredurao/prs/pkg/renderer"
 	"github.com/jroimartin/gocui"
 	"log"
 	"time"
 )
+
+var renderResult renderer.Renderer
 
 func NewGui(app *app.App) {
 	g := app.Gui
@@ -48,8 +50,11 @@ func NewGui(app *app.App) {
 }
 
 func getPullRequests(c chan string) {
-	time.AfterFunc(200*time.Millisecond, func() {
-		c <- fmt.Sprintf("%+v\n", github.PullRequests())
+	time.AfterFunc(50*time.Millisecond, func() {
+		FilterRows()
+		for _, row := range *renderResult.RenderMap() {
+			c <- fmt.Sprintf(row.Row)
+		}
 	})
 }
 

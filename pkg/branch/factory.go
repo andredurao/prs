@@ -1,20 +1,20 @@
 package branch
 
 import (
-	"fmt"
 	"github.com/andredurao/prs/pkg/github"
+	"github.com/andredurao/prs/pkg/renderer"
 	"github.com/andredurao/prs/pkg/tree"
 )
 
 var rootNode tree.Tree
 var branchesMap BranchesMap
-
 var pullRequests github.TQuery
 
-func MountMap() {
+func MountMap() renderer.Renderer {
 	initializeMap()
 	populateBranches()
 	populateTree()
+	return render()
 }
 
 func initializeMap() {
@@ -22,7 +22,6 @@ func initializeMap() {
 	branchesMap = make(BranchesMap)
 	addBranch("master", nil)
 	pullRequests = github.PullRequests().(github.TQuery)
-	fmt.Printf("%+v\n", pullRequests)
 }
 
 func addBranch(name string, pull interface{}) {
@@ -59,4 +58,10 @@ func FindParentBranch(name string) string {
 		}
 	}
 	return "master"
+}
+
+func render() renderer.Renderer {
+	r := renderer.New(rootNode)
+	r.Render()
+	return r
 }
