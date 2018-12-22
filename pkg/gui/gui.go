@@ -40,8 +40,10 @@ func NewGui(app *app.App) {
 
 	messages := make(chan string)
 	go func() {
-		getPullRequests(messages)
-		updateView(g, "container", <-messages)
+		getPullRequests(messages, g)
+		for {
+			updateView(g, "container", <-messages)
+		}
 	}()
 
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
@@ -49,8 +51,9 @@ func NewGui(app *app.App) {
 	}
 }
 
-func getPullRequests(c chan string) {
+func getPullRequests(c chan string, g *gocui.Gui) {
 	time.AfterFunc(50*time.Millisecond, func() {
+		clearView(g, "container")
 		FilterRows()
 		for _, row := range *renderResult.RenderMap() {
 			c <- fmt.Sprintf(row.Row)
@@ -58,12 +61,19 @@ func getPullRequests(c chan string) {
 	})
 }
 
-func updateView(g *gocui.Gui, view string, content string) {
+func clearView(g *gocui.Gui, view string) {
 	v, err := g.View(view)
 	if err != nil {
 		log.Println("Cannot get output view:", err)
 	}
 	v.Clear()
+}
+
+func updateView(g *gocui.Gui, view string, content string) {
+	v, err := g.View(view)
+	if err != nil {
+		log.Println("Cannot get output view:", err)
+	}
 	fmt.Fprintln(v, content)
 	g.Update(func(g *gocui.Gui) error {
 		return nil
