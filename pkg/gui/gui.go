@@ -120,8 +120,8 @@ func cursorDown(g *gocui.Gui, v *gocui.View) error {
 	if v != nil {
 		ox, oy := v.Origin()
 		cx, cy := v.Cursor()
-		max := 2
-		if (oy + cy) < max {
+		rows := len(*renderResult.RenderMap())
+		if (oy + cy) < (rows - 1) {
 			if err := v.SetCursor(cx, cy+1); err != nil {
 				if err := v.SetOrigin(ox, oy+1); err != nil {
 					return err
