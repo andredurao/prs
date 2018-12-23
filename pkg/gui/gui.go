@@ -14,29 +14,8 @@ var renderResult renderer.Renderer
 func NewGui(app *app.App) {
 	g := app.Gui
 	defer g.Close()
-
 	g.SetManagerFunc(layout)
-
-	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
-		log.Panicln(err)
-	}
-	if err := g.SetKeybinding("container", 'q', gocui.ModNone, quit); err != nil {
-		log.Panicln(err)
-	}
-	if err := g.SetKeybinding("container", 'j', gocui.ModNone, cursorDown); err != nil {
-		log.Panicln(err)
-	}
-	if err := g.SetKeybinding("container", gocui.KeyArrowDown, gocui.ModNone,
-		cursorDown); err != nil {
-		log.Panicln(err)
-	}
-	if err := g.SetKeybinding("container", 'k', gocui.ModNone, cursorUp); err != nil {
-		log.Panicln(err)
-	}
-	if err := g.SetKeybinding("container", gocui.KeyArrowUp, gocui.ModNone,
-		cursorUp); err != nil {
-		log.Panicln(err)
-	}
+	setKeybindings(g)
 
 	messages := make(chan string)
 	go func() {
@@ -56,7 +35,7 @@ func getPullRequests(c chan string, g *gocui.Gui) {
 		clearView(g, "container")
 		FilterRows()
 		for _, row := range *renderResult.RenderMap() {
-			c <- fmt.Sprintf(row.Row)
+			c <- row.Row
 		}
 	})
 }
@@ -86,7 +65,7 @@ func layout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		fmt.Fprintln(v, "Hello world!")
+		fmt.Fprintln(v, "PR Title")
 	}
 	if v, err := g.SetView("footer", 1, height-9, width-1, height-1); err != nil {
 		if err != gocui.ErrUnknownView {
@@ -109,38 +88,5 @@ j/↓: cursor down k/↑: cursor up
 		fmt.Fprintln(v, "Loading...")
 	}
 	g.SetCurrentView("container")
-	return nil
-}
-
-func quit(g *gocui.Gui, v *gocui.View) error {
-	return gocui.ErrQuit
-}
-
-func cursorDown(g *gocui.Gui, v *gocui.View) error {
-	if v != nil {
-		ox, oy := v.Origin()
-		cx, cy := v.Cursor()
-		rows := len(*renderResult.RenderMap())
-		if (oy + cy) < (rows - 1) {
-			if err := v.SetCursor(cx, cy+1); err != nil {
-				if err := v.SetOrigin(ox, oy+1); err != nil {
-					return err
-				}
-			}
-		}
-	}
-	return nil
-}
-
-func cursorUp(g *gocui.Gui, v *gocui.View) error {
-	if v != nil {
-		ox, oy := v.Origin()
-		cx, cy := v.Cursor()
-		if err := v.SetCursor(cx, cy-1); err != nil && oy > 0 {
-			if err := v.SetOrigin(ox, oy-1); err != nil {
-				return err
-			}
-		}
-	}
 	return nil
 }
