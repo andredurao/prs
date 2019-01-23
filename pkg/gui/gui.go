@@ -59,6 +59,15 @@ func updateView(g *gocui.Gui, view string, content string) {
 	})
 }
 
+func helpMessage() string {
+	message := `
+q: quit ?: help spacebar: open PR URL
+return: git checkout "/": search
+j/↓: cursor down k/↑: cursor up
+`
+	return message
+}
+
 func layout(g *gocui.Gui) error {
 	width, height := g.Size()
 	if v, err := g.SetView("header", 1, 1, width-1, 3); err != nil {
@@ -71,12 +80,7 @@ func layout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		help := `
-q: quit ?: help spacebar: open PR URL
-return: git checkout "/": search
-j/↓: cursor down k/↑: cursor up
-`
-		fmt.Fprintln(v, help)
+		fmt.Fprintln(v, helpMessage())
 	}
 	if v, err := g.SetView("container", 1, 4, width-1, height-10); err != nil {
 		if err != gocui.ErrUnknownView {
