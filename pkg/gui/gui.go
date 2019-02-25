@@ -17,11 +17,10 @@ func NewGui(app *app.App) {
 	g.SetManagerFunc(layout)
 	setKeybindings(g)
 
-	messages := make(chan string)
 	go func() {
-		getPullRequests(messages, g)
+		getPullRequests(app)
 		for {
-			updateView(g, "container", <-messages)
+			updateView(g, "container", <-app.Messages)
 		}
 	}()
 
@@ -30,12 +29,12 @@ func NewGui(app *app.App) {
 	}
 }
 
-func getPullRequests(c chan string, g *gocui.Gui) {
+func getPullRequests(app *app.App) {
 	time.AfterFunc(50*time.Millisecond, func() {
-		clearView(g, "container")
+		clearView(app.Gui, "container")
 		FilterRows()
 		for _, row := range *renderResult.RenderMap() {
-			c <- row.Row
+			app.Messages <- row.Row
 		}
 	})
 }

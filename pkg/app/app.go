@@ -6,7 +6,8 @@ import (
 )
 
 type App struct {
-	Gui *gocui.Gui
+	Gui      *gocui.Gui
+	Messages chan string
 }
 
 func NewApp() (*App, error) {
@@ -17,5 +18,6 @@ func NewApp() (*App, error) {
 		log.Panicln(err)
 	}
 	app.Gui = gui
+	app.Messages = make(chan string)
 	return app, nil
 }
